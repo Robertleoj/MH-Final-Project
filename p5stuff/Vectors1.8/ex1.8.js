@@ -41,11 +41,19 @@ class Mover{//mover class!
 
 	checkEdges(){
 		//dont wanna leave the screen!
-		if(this.loc.x < 0 || this.loc.x > width){
+		if(this.loc.x < 0){
+			this.loc.x =0;
+			this.vel.x = 0;
+		}else if (this.loc.x > width){
+			this.loc.x = width;
 			this.vel.x = 0;
 		}
-		if(this.loc.y < 0 || this.loc.y > height){
-			this.vel.y =0;
+		if(this.loc.y < 0){
+			this.loc.y =0;
+			this.vel.y = 0;
+		}else if (this.loc.y > height){
+			this.loc.y = height;
+			this.vel.y = 0;
 		}
 	}
 
