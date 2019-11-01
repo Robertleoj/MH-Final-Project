@@ -24,7 +24,7 @@ function draw(){
 	}
 	
 	//to start us off
-	if (pArray.length<20){
+	if (pArray.length<50){
 		pArray.push(new Particle());
 	}
 }
@@ -32,11 +32,11 @@ function draw(){
 
 class Particle{
 	constructor(){
-		this.loc = createVector(random(width), random(height));//initiate anywhere
+		this.loc = createVector(width/2, 100);//initiate anywhere
 		this.acc = createVector(0,0);
-		this.vel = p5.Vector.fromAngle(random(TAU)).mult(random(5));//little bit of velocity
+		this.vel = p5.Vector.fromAngle(random(TAU)).mult(random(20));//little bit of velocity
 
-		this.life = random(1000);
+		this.life = random(130);
 		this.initLifespan = this.life//grab the initial lifespan 4 l8r
 
 		this.angle = 0;//angle of rotation
