@@ -2,11 +2,12 @@
 let t;
 function setup(){
 	createCanvas(600,600);
+	loadPixels();
 	t = 0.0;
 	
 }
 function draw(){
-	loadPixels();
+	
 	let xoff = t;
 	for (let i = 0; i < width; i++){
 

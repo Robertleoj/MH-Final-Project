@@ -10,8 +10,8 @@ function setup(){
 	bsize = 250;
 	ssize = 50;
 	red = color(255,0,0);
-
 }
+
 function draw(){
 	background(200);
 	noFill();
@@ -20,7 +20,7 @@ function draw(){
 	rotateY(frameCount*0.003);
 	box(bsize*2);
 
-	translate(pos.x, pos.y, pos.z);
+	
 	fill(0);
 	if(pos.x + ssize>bsize || pos.x-ssize<-bsize){
 		vel.x*=-1;
@@ -36,6 +36,7 @@ function draw(){
 	}
 	pos.add(vel);
 	noStroke();
-	
+
+	translate(pos.x, pos.y, pos.z);
 	sphere(ssize);
 }
