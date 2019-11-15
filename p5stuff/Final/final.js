@@ -13,7 +13,7 @@ function setup(){
 	squares = [];
 	enemies = new EnemyArray();
 	planets = new PlanetArray();
-	planets.makePlanet(width/2);
+	planets.makePlanet(width/2);//to start us off
 }
 
 function draw(){
@@ -31,6 +31,7 @@ function draw(){
 	planets.checkEdge();
 	planets.checkIfDead();
 
+	//enemy functions
 	enemies.checkImpact(squares);
 	enemies.run();
 	
@@ -55,9 +56,9 @@ function draw(){
 			squares.splice(i, 1);
 		}
 	}
-
-
 }
+
+//fire while space bar is down
 function fire(){
 	if (keyIsDown(32)){
 		//make new CanonSquare
@@ -74,6 +75,8 @@ class EnemyArray{
 		this.enemies = [];
 		this.prob = 2;//probability of new enemy
 	}
+
+	//do most of the functions
 	run(){
 		this.maybeEnemy();
 		this.move();
@@ -131,6 +134,7 @@ class EnemyArray{
 		}
 	}
 
+	//check if it has been shot
 	checkImpact(objArray){
 		for (let i = 0;i<this.enemies.length;i++){
 			for (let k = 0; k< objArray.length;k++){
@@ -163,42 +167,49 @@ class Enemy{
 		this.acc.add(force);
 	}
 
+	//has it been shot?
 	checkImpact(obj){
 		let radius = p5.Vector.dist(this.loc, obj.loc);
 		if (radius < 30){
 			obj.die();
 			this.die();
 		}
-		
 	}
 
 	display(){
 		//translate and rotate 
 		let angle = this.vel.heading();
+		let s = 3/4;
 		push();
 		translate(this.loc.x, this.loc.y);
 		rotate(angle);
-
-		//draw the triangle
+		noStroke();
+		fill(255, 0, 0);
+		triangle(-25*s,12.5*s, -25*s, 25*s, 0, 12.5*s);
+		triangle(-25*s, 12.5*s, -25*s, 25*s, -50*s, 25*s);
+		triangle(-25*s,-12.5*s, -25*s, -25*s, 0, -12.5*s);
+		triangle(-25*s, -12.5*s, -25*s ,-25*s, -50*s, -25*s);
+		fill(60);
+		ellipse(0,0,90*s, 30*s);
+		triangle(25*s,12.5*s, 25*s, -12.5*s, 60*s, 0);
 		fill(255);
-		stroke(0);
-		triangle(20, 0, -10, 14, -10, -14);
-
-		//draw the two squares
-		fill(255, 0, 0);
-		stroke(0);
-		rect(-15, -10,5, 5); 
-
-		fill(255, 0, 0);
-		stroke(0);
-		rect(-15, 5, 5, 5);
+		ellipse(18*s, 0, 14*s, 14*s);
+		fill(66, 135, 245);
+		ellipse(-45*s, 0, 20*s,20*s);
+		triangle(-65*s, 0, -45*s, -10*s, -45*s, 10*s);
+		fill(0);
+		rect(-40*s, -12*s, 10*s, 24*s);
+		fill(255*s, 0, 0);
+		rect(-50*s, -3*s, 35*s, 6*s);
 		pop();
 	}
 
+	//kill it
 	die(){
 		this.dead = true;
 	}
 
+	//make acelleration
 	move(){
 		let dist;
 		//check whether it is closer
@@ -227,10 +238,6 @@ class Enemy{
 	}
 }
 
-//press space to fire canon
-
-
-
 //make the perlin noise background and save in image
 function makeBackground(){
 	img = createImage(width, height);
@@ -253,8 +260,6 @@ function makeBackground(){
 		xoff+=0.01;
 	}
 	img.updatePixels();
-
-	
 }
 
 class CanonSquare{

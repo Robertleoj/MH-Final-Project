@@ -43,27 +43,28 @@ class Spaceship{
 
 	draw(){
 		//translate and rotate 
+		push()
 		translate(this.loc.x, this.loc.y);
 		rotate(this.angle);
 
-		//draw the triangle
+		translate(width/2, height/2);
+		noStroke();
+		fill(255, 0, 0);
+		triangle(-25,12.5, -25, 25, 0, 12.5);
+		triangle(-25, 12.5, -25, 25, -50, 25);
+		triangle(-25,-12.5, -25, -25, 0, -12.5);
+		triangle(-25, -12.5, -25 ,-25, -50, -25);
+		fill(0);
+		ellipse(0,0,90, 30);
+		fill(0);
+		triangle(25,12.5, 25, -12.5, 60, 0);
 		fill(255);
-		stroke(0);
-		triangle(20, 0, -10, 14, -10, -14);
-
-		//draw the two squares
-		//check the red variable
-		if (this.red){fill(255, 0, 0);}else{fill(255);}
-		stroke(0);
-		rect(-15, -10,5, 5); 
-
-		//check the red variable
-		if (this.red){fill(255, 0, 0);}else{fill(255);}
-		stroke(0);
-		rect(-15, 5, 5, 5);
-
-		//reset the red variable to false
-		this.red = false;
+		ellipse(18, 0, 14, 14);
+		fill(255);
+		rect(-45, -12, 20, 24);
+		fill(255, 0, 0);
+		rect(-45, -3, 35, 6);
+		pop();
 	}
 
 	thrust(){
