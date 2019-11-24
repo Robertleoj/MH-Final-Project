@@ -2,71 +2,187 @@ let img;
 let canon;
 let squares;
 let planets;
-
-//for testing
+let bullets;
 let enemies;
+let status;
+let explosions;
 
 function setup(){
 	createCanvas(1200,800);
 	makeBackground();
 	canon = new Canon();
-	squares = [];
 	enemies = new EnemyArray();
 	planets = new PlanetArray();
+	bullets = new Bullets();
 	planets.makePlanet(width/2);//to start us off
+	status = new WinOrLose();
+	explosions = new ExplosionArray;
 }
+
 
 function draw(){
 	//put the background in place
 	image(img, 0,0, width, height);
-	//spin the canon
-	canon.checkArrows();
-	fire();
-
-	//do the requisite planet functions
-	planets.maybePlanet();
-	planets.attract(squares);
-	planets.checkImpact(squares);
-	planets.checkImpact(enemies.enemies);
-	planets.checkEdge();
-	planets.checkIfDead();
-
-	//enemy functions
-	enemies.checkImpact(squares);
-	enemies.run();
 	
+	//check if the game is lost
+	if (!status.lost){
+		//spin the gun
+		canon.checkArrows();
+		
 
-	//squares functions
-	for(let i = 0;i<squares.length;i++){
+		//do the requisite planet functions
+		planets.maybePlanet();
+		planets.attract(bullets.bullets);
+		planets.checkImpact(bullets.bullets);
+		planets.checkImpact(enemies.enemies);
+		planets.checkEdge();
+		planets.checkIfDead();
 
-		squares[i].update();
-		squares[i].checkEdges();
-		squares[i].draw();
-	}
+		//enemy functions
+		enemies.checkImpact(bullets.bullets);
+		enemies.run();
+		
+		
+		bullets.run();
+		bullets.fire();
 
-	//draw the planets
-	planets.display();
 
-	//draw the canon
-	canon.draw();
+		//draw the planets
+		planets.display();
+		explosions.run();
 
-	//remove dead squares
-	for (let i = 0;i<squares.length;i++){
-		if (squares[i].dead ===true){
-			squares.splice(i, 1);
-		}
+		//draw the canon
+		canon.draw();
+
+		bullets.drawHeatLine();
+		bullets.checkDead();
+
+		status.drawLives();
+		status.drawScore();
+	}else{//if the game is lose, display game over screen
+		status.drawLose();
 	}
 }
 
-//fire while space bar is down
-function fire(){
-	if (keyIsDown(32)){
-		//make new CanonSquare
-		squares.push(new CanonSquare(canon.loc))
 
-		//fire the CanonSquare
-		squares[squares.length -1].applyForce(canon.fire(squares[squares.length-1]));
+class WinOrLose{
+	constructor(){
+		this.lives = 15;
+		this.lost = false;
+		this.score = 0;
+	}
 
+	loseLife(){
+		this.lives -= 1;
+		if(this.lives <= 0){
+			this.lost = true;
+		}
+	}
+
+	//draw the hearts displaying the lives
+	drawLives(){
+		for (let i = 0; i<this.lives; i++){
+			push();
+			translate(width-30 - 20*i, height-30);
+			noStroke();
+			fill(255,0,0);
+			triangle(-10, 0, 10,0, 0, 14);
+			arc(-5, 0, 10, 12, PI, TAU);
+			arc(5, 0, 10, 12, PI, TAU);
+			pop();
+		}
+	}
+
+	drawScore(){
+		textSize(50);
+		fill(0);
+		let message  = concat("Score: ", this.score.toString());
+		text(message, 40, height - 40);
+	}
+
+	lose(){
+		this.lost = true;
+	}
+
+	//game over screen
+	drawLose(){
+		push();
+		textAlign(CENTER, CENTER);
+		textSize(100);
+		fill(0);
+		text("GAME OVER",width/2, height/2);
+		textSize(50);
+		let message  = concat("Final Score: ", this.score.toString());
+		text(message, width/2, height/2 + 60);
+		textSize(30);
+		text("Don't screw up again next time", width/2, height/2 +100);
+		pop();
+	}
+
+}
+
+
+class Bullets{
+	constructor(){
+		this.bullets = [];
+		this.heat = 0;
+		this.heatMax = 100;
+		this.hot = false;
+
+	}
+
+	tooHot(){
+		this.hot = true;
+	}
+
+	//press space to fire
+	fire(){
+		if(this.heat<this.heatMax && this.hot ===false){
+			if(keyIsDown(32)){
+				this.bullets.push(new CanonSquare(canon.loc));
+
+				this.bullets[this.bullets.length-1].applyForce(canon.fire(this.bullets[this.bullets.length-1]));
+				this.heat += 3;
+			}
+		}else if(this.heat>= this.heatMax){
+			this.tooHot();
+		}
+	}
+
+	drawHeatLine(){
+		if(this.hot){
+			fill(255,0,0);
+		}else{
+			fill(0,255,0);
+		}
+		let xwidth = map(this.heat, 0,100,0,width);
+		rect(0, 0, xwidth, 30 );
+	}
+
+	checkDead(){
+		//remove dead squares
+		for (let i = 0;i<this.bullets.length;i++){
+			if (this.bullets[i].dead ===true){
+				this.bullets.splice(i, 1);
+			}
+		}
+	}
+
+	run(){
+		for(let i = 0;i<this.bullets.length;i++){
+			
+			this.bullets[i].update();
+			this.bullets[i].checkEdges();
+			this.bullets[i].draw();
+		}
+		if(this.heat >0){
+			this.heat -= 0.5;
+		}
+		if(this.heat< 0.7*this.heatMax ){
+			this.hot = false;
+		}
+		
+		
 	}
 }
 
@@ -127,7 +243,7 @@ class EnemyArray{
 
 	//small chance of a new planet appearing
 	maybeEnemy(){
-		let randnum = random(100);
+		let randnum = random(200);
 		if (randnum < this.prob){
 			this.makeEnemy();
 			this.prob += 0.03;
@@ -173,13 +289,16 @@ class Enemy{
 		if (radius < 30){
 			obj.die();
 			this.die();
+
+			//add one to the player score
+			status.score += 1;
 		}
 	}
 
 	display(){
 		//translate and rotate 
 		let angle = this.vel.heading();
-		let s = 3/4;
+		let s = 2/3;
 		push();
 		translate(this.loc.x, this.loc.y);
 		rotate(angle);
@@ -191,7 +310,7 @@ class Enemy{
 		triangle(-25*s, -12.5*s, -25*s ,-25*s, -50*s, -25*s);
 		fill(60);
 		ellipse(0,0,90*s, 30*s);
-		triangle(25*s,12.5*s, 25*s, -12.5*s, 60*s, 0);
+		//triangle(25*s,12.5*s, 25*s, -12.5*s, 60*s, 0);
 		fill(255);
 		ellipse(18*s, 0, 14*s, 14*s);
 		fill(66, 135, 245);
@@ -207,6 +326,7 @@ class Enemy{
 	//kill it
 	die(){
 		this.dead = true;
+		explosions.explode(this.loc);
 	}
 
 	//make acelleration
@@ -224,16 +344,19 @@ class Enemy{
 
 	checkEdges(){
 		if (this.loc.x < 0){
-			this.die();
+			this.dead = true;
 		}
 		if (this.loc.x > width){
-			this.die();
+			this.dead = true;
+			//lose a life
+			status.loseLife();
+
 		}
 		if (this.loc.y < 0){
-			this.die();
+			this.dead = true;
 		}
 		if (this.loc.y > height){
-			this.die();
+			this.dead = true;
 		}
 	}
 }
@@ -251,7 +374,7 @@ function makeBackground(){
 		for (let j = 0; j<height; j++){
 
 			let col = map(noise(xoff, yoff), 0,1,0,255);
-			img.set(i, j, color(col, col, 0));
+			img.set(i, j, color(col, 0, col));
 
 
 			yoff+=0.01;
@@ -417,8 +540,8 @@ class PlanetArray{
 
 	//small chance of a new planet appearing
 	maybePlanet(){
-		let randnum = random(1000);
-		if (randnum < 2){
+		let randnum = random(2000);
+		if (randnum < 1){
 			this.makePlanet(random(width - 300));
 		}
 	}
@@ -437,8 +560,8 @@ class Planet{
 	
 	constructor(x, y){
 		this.loc = createVector(x, y);
-		this.mass = random(100, 170);
-		this.G = 6;
+		this.mass = random(50,90);
+		this.G = this.mass/6;
 		this.dead = false;
 	}
 
@@ -464,7 +587,7 @@ class Planet{
 	//kill everything that impacts
 	checkImpact(obj){
 		let radius = p5.Vector.dist(this.loc, obj.loc);
-		if (radius < this.mass/2){
+		if (radius < this.mass/1.5){
 			obj.die();
 		}
 		
@@ -474,9 +597,146 @@ class Planet{
 	display(){
 		fill(0);
 		ellipse(this.loc.x, this.loc.y, this.mass, this.mass);
-		this.loc.add(createVector(0, -0.3));
+		this.loc.add(createVector(0, -0.1));
 		
 	}
 }
 
 
+function constrain(value, min, max){
+	if (value<min){
+		value = min;
+	}
+	if (value > max){
+		value = max;
+	}
+}
+
+class ExplosionArray{
+	constructor(){
+		this.explosions = [];
+
+	}
+
+	explode(loc){
+		this.explosions.push(new Explosion(loc));
+	}
+
+	run(){
+		for(let i = 0; i<this.explosions.length; i++){
+			this.explosions[i].run();
+		}
+
+		for (let i = 0;i<this.explosions.length;i++){
+			if(this.explosions[i].dead){
+				this.explosions.splice(i, 1);
+			}
+		}
+	
+	}
+}
+
+class Explosion{
+	constructor(loc){
+		this.pArray = [];
+		this.dead = false;
+		this.loc = loc;
+		this.lifeSpan = 200;
+
+
+		for (let i = 0; i < 50;i++){
+			this.pArray.push(new Particle(this.loc));
+		}
+	}
+
+	run(){
+		for (let i = 0;i<this.pArray.length;i++){
+			this.pArray[i].run();
+		}
+		this.lifeSpan -= 1;
+		
+		if(this.lifeSpan < 0){
+			this.dead = true;
+		}
+	}
+
+	
+
+}
+
+
+class Particle{
+	constructor(loc){//location vector
+		this.loc = loc.copy();//initiate anywhere
+		this.acc = createVector(0,0);
+		this.vel = p5.Vector.fromAngle(random(TAU)).mult(random(5));//little bit of velocity
+
+		this.life = random(130);
+		this.initLifespan = this.life//grab the initial lifespan 4 l8r
+
+		this.angle = 0;//angle of rotation
+		this.angVel = random(0, 1);
+		this.size = random(2, 10);
+
+		this.dead = false;
+
+
+		//red or yellow?
+		this.redYellow = int(random(2));
+	}
+
+	run(){
+
+		//do all the things if not dead
+		if(!this.dead){
+		this.update();
+		this.display();
+		//this.applyForce(this.outForce());
+		}
+	}
+
+	update(){
+		//
+		this.vel.add(this.acc);
+		this.loc.add(this.vel);
+		this.angle +=this.angVel;//increment angle
+		this.isDead();
+		this.life -= 2;//decreasing lifespan
+		this.acc.mult(0);
+	}
+
+	isDead(){
+		//is the damn thing dead?
+		if (this.life < 0){
+			this.dead = true;
+		}
+	}
+
+	applyForce(f){
+		this.acc.add(f);
+	}
+
+	display(){
+		//map its remaining lifespan to its alpha
+		push();
+		translate(this.loc.x, this.loc.y);
+		rotate(this.angle);
+
+		if(this.redYellow === 0){
+			fill(255, 0, 0, map(this.life, 0,this.initLifespan, 0, 255));
+		}else{
+			fill(255,238, 0, map(this.life, 0, this.initLifespan, 0, 255));
+		}
+		noStroke();
+		rectMode(RADIUS);
+		rect(0,0, this.size, this.size);
+		pop();
+	}
+
+	//stolen function from ex2.3
+	outForce(){
+		let m = 10;//how strong is the edgeForce?
+		let f = p5.Vector.fromAngle(random(TAU)).mult(m);
+		return f;
+	}
+}
