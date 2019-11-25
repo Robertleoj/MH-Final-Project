@@ -29,7 +29,6 @@ function draw(){
 		//spin the gun
 		canon.checkArrows();
 		
-
 		//do the requisite planet functions
 		planets.maybePlanet();
 		planets.attract(bullets.bullets);
@@ -59,13 +58,15 @@ function draw(){
 
 		status.drawLives();
 		status.drawScore();
-	}else{//if the game is lose, display game over screen
+
+	}else{//if the game is lost, display game over screen
 		status.drawLose();
 	}
 }
 
 
 class WinOrLose{
+
 	constructor(){
 		this.lives = 15;
 		this.lost = false;
@@ -95,7 +96,7 @@ class WinOrLose{
 
 	drawScore(){
 		textSize(50);
-		fill(0);
+		fill(0,255,0);
 		let message  = concat("Score: ", this.score.toString());
 		text(message, 40, height - 40);
 	}
@@ -109,7 +110,7 @@ class WinOrLose{
 		push();
 		textAlign(CENTER, CENTER);
 		textSize(100);
-		fill(0);
+		fill(0, 255,0);
 		text("GAME OVER",width/2, height/2);
 		textSize(50);
 		let message  = concat("Final Score: ", this.score.toString());
@@ -118,9 +119,7 @@ class WinOrLose{
 		text("Don't screw up again next time", width/2, height/2 +100);
 		pop();
 	}
-
 }
-
 
 class Bullets{
 	constructor(){
@@ -128,9 +127,9 @@ class Bullets{
 		this.heat = 0;
 		this.heatMax = 100;
 		this.hot = false;
-
 	}
 
+	//make canon overheat
 	tooHot(){
 		this.hot = true;
 	}
@@ -149,6 +148,7 @@ class Bullets{
 		}
 	}
 
+	//draw the overheating line
 	drawHeatLine(){
 		if(this.hot){
 			fill(255,0,0);
@@ -181,8 +181,6 @@ class Bullets{
 		if(this.heat< 0.7*this.heatMax ){
 			this.hot = false;
 		}
-		
-		
 	}
 }
 
@@ -229,7 +227,6 @@ class EnemyArray{
 		}
 	}
 
-
 	checkEdges(){
 		for(let i = 0; i<this.enemies.length; i++){
 			this.enemies[i].checkEdges();
@@ -241,12 +238,12 @@ class EnemyArray{
 		this.enemies.push(new Enemy());
 	}
 
-	//small chance of a new planet appearing
+	//small chance of a new enemy appearing
 	maybeEnemy(){
 		let randnum = random(200);
 		if (randnum < this.prob){
 			this.makeEnemy();
-			this.prob += 0.03;
+			
 		}
 	}
 
@@ -289,6 +286,7 @@ class Enemy{
 		if (radius < 30){
 			obj.die();
 			this.die();
+			enemies.prob +=0.03;
 
 			//add one to the player score
 			status.score += 1;
@@ -298,7 +296,7 @@ class Enemy{
 	display(){
 		//translate and rotate 
 		let angle = this.vel.heading();
-		let s = 2/3;
+		let s =2/3;
 		push();
 		translate(this.loc.x, this.loc.y);
 		rotate(angle);
@@ -350,7 +348,6 @@ class Enemy{
 			this.dead = true;
 			//lose a life
 			status.loseLife();
-
 		}
 		if (this.loc.y < 0){
 			this.dead = true;
@@ -408,7 +405,6 @@ class CanonSquare{
 			this.loc.add(this.vel);
 			this.acc.mult(0);
 		}
-		
 	}
 
 	checkEdges(){
@@ -425,7 +421,6 @@ class CanonSquare{
 			this.dead = true;
 		}
 	}
-
 
 	//only draw if alive
 	draw(){
@@ -454,7 +449,6 @@ class Canon{
 	constructor(){
 		this.loc = createVector(width-15, height/2);
 		this.angle = PI;
-		
 	}
 
 	fire(){
@@ -462,8 +456,6 @@ class Canon{
 		let force = p5.Vector.fromAngle(this.angle).mult(50);
 		return force;
 	}
-
-
 
 	increaseAngle(num){
 		this.angle -= num;
@@ -590,7 +582,6 @@ class Planet{
 		if (radius < this.mass/1.5){
 			obj.die();
 		}
-		
 	}
 
 	//draw the attractor
@@ -598,10 +589,8 @@ class Planet{
 		fill(0);
 		ellipse(this.loc.x, this.loc.y, this.mass, this.mass);
 		this.loc.add(createVector(0, -0.1));
-		
 	}
 }
-
 
 function constrain(value, min, max){
 	if (value<min){
@@ -615,9 +604,9 @@ function constrain(value, min, max){
 class ExplosionArray{
 	constructor(){
 		this.explosions = [];
-
 	}
 
+	//call this funciton to make an explosion at that loc
 	explode(loc){
 		this.explosions.push(new Explosion(loc));
 	}
@@ -632,7 +621,6 @@ class ExplosionArray{
 				this.explosions.splice(i, 1);
 			}
 		}
-	
 	}
 }
 
@@ -643,7 +631,7 @@ class Explosion{
 		this.loc = loc;
 		this.lifeSpan = 200;
 
-
+		//start with 50 initial particles
 		for (let i = 0; i < 50;i++){
 			this.pArray.push(new Particle(this.loc));
 		}
@@ -653,21 +641,19 @@ class Explosion{
 		for (let i = 0;i<this.pArray.length;i++){
 			this.pArray[i].run();
 		}
+
 		this.lifeSpan -= 1;
 		
+		//kill it when the lifespan is zero
 		if(this.lifeSpan < 0){
 			this.dead = true;
 		}
 	}
-
-	
-
 }
-
 
 class Particle{
 	constructor(loc){//location vector
-		this.loc = loc.copy();//initiate anywhere
+		this.loc = loc.copy();
 		this.acc = createVector(0,0);
 		this.vel = p5.Vector.fromAngle(random(TAU)).mult(random(5));//little bit of velocity
 
@@ -680,23 +666,19 @@ class Particle{
 
 		this.dead = false;
 
-
 		//red or yellow?
 		this.redYellow = int(random(2));
 	}
 
 	run(){
-
 		//do all the things if not dead
 		if(!this.dead){
 		this.update();
 		this.display();
-		//this.applyForce(this.outForce());
 		}
 	}
 
 	update(){
-		//
 		this.vel.add(this.acc);
 		this.loc.add(this.vel);
 		this.angle +=this.angVel;//increment angle
@@ -710,10 +692,6 @@ class Particle{
 		if (this.life < 0){
 			this.dead = true;
 		}
-	}
-
-	applyForce(f){
-		this.acc.add(f);
 	}
 
 	display(){
@@ -731,12 +709,5 @@ class Particle{
 		rectMode(RADIUS);
 		rect(0,0, this.size, this.size);
 		pop();
-	}
-
-	//stolen function from ex2.3
-	outForce(){
-		let m = 10;//how strong is the edgeForce?
-		let f = p5.Vector.fromAngle(random(TAU)).mult(m);
-		return f;
 	}
 }
