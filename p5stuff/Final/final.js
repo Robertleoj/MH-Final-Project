@@ -6,6 +6,17 @@ let bullets;
 let enemies;
 let status;
 let explosions;
+let music;
+let expSound;
+let oof;
+
+function preload(){
+	soundFormats('mp3');
+	music = loadSound('p5stuff/Final/nas.mp3');
+	expSound = loadSound('p5stuff/Final/exp.mp3');
+	oof = loadSound('p5stuff/Final/oof.mp3');
+}
+
 
 function setup(){
 	createCanvas(1200,800);
@@ -17,12 +28,14 @@ function setup(){
 	planets.makePlanet(width/2);//to start us off
 	status = new WinOrLose();
 	explosions = new ExplosionArray;
+	music.loop();
 }
 
 
 function draw(){
 	//put the background in place
 	image(img, 0,0, width, height);
+	
 	
 	//check if the game is lost
 	if (!status.lost){
@@ -75,6 +88,7 @@ class WinOrLose{
 
 	loseLife(){
 		this.lives -= 1;
+		oof.play();
 		if(this.lives <= 0){
 			this.lost = true;
 		}
@@ -325,6 +339,7 @@ class Enemy{
 	die(){
 		this.dead = true;
 		explosions.explode(this.loc);
+		expSound.play();
 	}
 
 	//make acelleration
