@@ -39,6 +39,7 @@ class Spaceship{
 		//apply illogical space friction
 		this.vel.mult(0.99);
 
+
 	}
 
 	draw(){
@@ -55,16 +56,20 @@ class Spaceship{
 		triangle(-25*s, -12.5*s, -25*s ,-25*s, -50*s, -25*s);
 		fill(60);
 		ellipse(0,0,90*s, 30*s);
-		//triangle(25*s,12.5*s, 25*s, -12.5*s, 60*s, 0);
+	
 		fill(255);
 		ellipse(18*s, 0, 14*s, 14*s);
 		fill(66, 135, 245);
-		ellipse(-45*s, 0, 20*s,20*s);
-		triangle(-65*s, 0, -45*s, -10*s, -45*s, 10*s);
+		if (this.red){
+			ellipse(-45*s, 0, 20*s,20*s);
+			triangle(-65*s, 0, -45*s, -10*s, -45*s, 10*s);
+		}
+		
 		fill(0);
 		rect(-40*s, -12*s, 10*s, 24*s);
-		fill(255*s, 0, 0);
+		fill(255, 0, 0);
 		rect(-50*s, -3*s, 35*s, 6*s);
+		this.red = false;
 		pop();
 	}
 
