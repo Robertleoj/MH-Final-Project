@@ -43,27 +43,28 @@ class Spaceship{
 
 	draw(){
 		//translate and rotate 
+		let s = 3/4;
 		push()
 		translate(this.loc.x, this.loc.y);
 		rotate(this.angle);
-
-		translate(width/2, height/2);
 		noStroke();
 		fill(255, 0, 0);
-		triangle(-25,12.5, -25, 25, 0, 12.5);
-		triangle(-25, 12.5, -25, 25, -50, 25);
-		triangle(-25,-12.5, -25, -25, 0, -12.5);
-		triangle(-25, -12.5, -25 ,-25, -50, -25);
-		fill(0);
-		ellipse(0,0,90, 30);
-		fill(0);
-		triangle(25,12.5, 25, -12.5, 60, 0);
+		triangle(-25*s,12.5*s, -25*s, 25*s, 0, 12.5*s);
+		triangle(-25*s, 12.5*s, -25*s, 25*s, -50*s, 25*s);
+		triangle(-25*s,-12.5*s, -25*s, -25*s, 0, -12.5*s);
+		triangle(-25*s, -12.5*s, -25*s ,-25*s, -50*s, -25*s);
+		fill(60);
+		ellipse(0,0,90*s, 30*s);
+		//triangle(25*s,12.5*s, 25*s, -12.5*s, 60*s, 0);
 		fill(255);
-		ellipse(18, 0, 14, 14);
-		fill(255);
-		rect(-45, -12, 20, 24);
-		fill(255, 0, 0);
-		rect(-45, -3, 35, 6);
+		ellipse(18*s, 0, 14*s, 14*s);
+		fill(66, 135, 245);
+		ellipse(-45*s, 0, 20*s,20*s);
+		triangle(-65*s, 0, -45*s, -10*s, -45*s, 10*s);
+		fill(0);
+		rect(-40*s, -12*s, 10*s, 24*s);
+		fill(255*s, 0, 0);
+		rect(-50*s, -3*s, 35*s, 6*s);
 		pop();
 	}
 
